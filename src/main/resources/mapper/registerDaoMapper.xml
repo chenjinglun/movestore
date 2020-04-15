@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.register.Dao.registerDao">
+
+    <!--统计用户账号数量-->
+    <select id="countAcct" parameterType="com.example.demo.register.Entity.registerEntity" resultType="int">
+        select count(user_acct)
+        from t_user_management
+        where is_deleted = 0
+        and user_acct = #{userAcct}
+    </select>
+
+    <!--新增用户-->
+    <insert id="addUser" parameterType="com.example.demo.register.Entity.registerEntity">
+        insert into t_user_management
+        (
+         user_code,
+         user_name,
+         user_acct,
+         user_pwd,
+         id_card,
+         sex,
+         phone,
+         email,
+         image,
+         is_deleted,
+         create_time,
+         create_by,
+         gmt_modified,
+         last_modified_by,
+         version)
+        values
+           (#{userCode},
+            #{userName},
+            #{userAcct},
+            #{userPwd},
+            #{idCard},
+            #{sex},
+            #{phone},
+            #{email},
+            #{image}
+            #{is_deleted},
+            now(),
+            #{create_by},
+            now(),
+            #{last_modified_by},
+            0)
+    </insert>
+
+</mapper>
