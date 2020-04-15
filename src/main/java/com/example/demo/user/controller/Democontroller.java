@@ -14,23 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-/**
- * @Description增删改查DEMO
- * @Author scout
- * @Date 2020-03-25
- */
-
-/**
- * 这里是Controller 与web页进行交互，故路径也在这里
- */
 @RestController
 
-/**
- * RequestMapping 请求路径，用户进入的第一个 路径（path）
- * request 请求方式默认 get、post都行
- * PostMapping post请求
- * GetMapping Get请求
- */
 @RequestMapping("/user")
 
 public class Democontroller {
@@ -39,22 +24,12 @@ public class Democontroller {
     @Resource
     private DemoSerive demoService;
     /**
-     * demo 新增用户
-     *
+     * 新增用户
      * @param userInfo
-     * @return AppResponse
+     * @return Response
      * @author scout
      * @Date 2020-03-25.
      */
-
-    /**
-     * 请求的第二个路径 post请求
-     *
-     * @param userInfo
-     * @return
-     */
-
-
     @PostMapping("saveUser")
     public ResponceData saveUser(UserInfo userInfo){
         try{
@@ -92,12 +67,9 @@ public class Democontroller {
             throw e;
         }
     }
-
-
     /**
      * 删除用户
-     *
-     * @param user_code
+     * @param listCode
      * @return Response
      * @author scout
      * @Date 2020-03-25
@@ -116,17 +88,6 @@ public class Democontroller {
               throw e;
           }
       }
-      /*public ResponceData deleteUser(String user_code) {
-          try {
-              String userId = AuthUtils.getCurrentUserId();
-              return demoService.deleteUser(userId);
-          } catch (Exception e) {
-              logger.error("用户删除错误", e);
-              System.out.println(e.toString());
-              throw e;
-          }
-      }*/
-
     /**
      * 查询用户详情
      *
@@ -146,8 +107,6 @@ public class Democontroller {
               throw e;
           }
       }
-
-
     /**
      * 用户列表(分页)
      *

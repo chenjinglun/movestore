@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
+import static com.example.demo.util.AuthUtils.generateMixString;
+
 //import static org.springframework.data.repository.init.ResourceReader.Type.JSON;
 
 /**
@@ -59,10 +61,7 @@ public class DemoSerive {
         if (0 != countUserAcct) {
             return ResponceData.bizError("用户已存在，请重新输入");
         }
-        /**
-         * 他这里使用它产生一个时间戳
-         */
-        //userInfo.setUserCode(StringUtil.getCommonCode(2));
+        userInfo.setUser_code(generateMixString(4));
         userInfo.setIs_deleted(0);
         //新增用户
         int count = demoDao.saveUser(userInfo);
