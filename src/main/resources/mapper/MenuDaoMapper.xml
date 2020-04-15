@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.menu.Dao.MenuDao">
+    <!--统计菜单数量-->
+    <select id="countMenuAcct" parameterType="com.example.demo.menu.Entity.MenuEntity" resultType="int">
+        select count(menu_name)
+        from t_menu
+        where is_deleted = 0
+        and menu_name = #{menuName}
+    </select>
+
+    <insert id="addMenu" parameterType="com.example.demo.menu.Entity.MenuEntity">
+        insert into t_menu
+        (
+         menu_no,
+         menu_name,
+         menu_action,
+         remark,
+         exit_menu,
+         is_deleted,
+         create_time,
+         create_by,
+         gmt_modified,
+         last_modified_by,
+         version)
+        values
+           (
+            #{menuNO},
+            #{menuName},
+            #{menuAction},
+            #{remark},
+            #{exitMenu},
+            #{is_deleted},
+            now(),
+            #{create_by},
+            now(),
+            #{last_modified_by},
+            0)
+    </insert>
+
+    <select id="queryMenuDetail" parameterType="java.lang.Integer" resultType="com.example.demo.menu.Entity.MenuEntity">
+        select
+         menu_no menuNO,
+         menu_name menuName,
+         menu_action menuAction,
+         remark remark,
+         exit_menu exitMenu,
+         is_deleted,
+         create_time,
+         create_by,
+         gmt_modified,
+         last_modified_by,
+         version
+        from t_menu
+        where menu_no = #{menuNO}
+        and is_deleted = 0
+    </select>
+
+    <!--删除用户-->
+    <update id="deletemenu" parameterType="java.lang.Integer">
+        update t_menu
+        set
+        is_deleted = 1,
+        gmt_modified = now(),
+        last_modified_by   = #{menuId},
+        version = version + 1
+        where menu_no in
+        <foreach item="item" index="index" collection="listCode2" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!--修改菜单-->
+    <update id="updateMenu" parameterType="com.example.demo.menu.Entity.MenuEntity">
+        update t_menu
+        set
+            menu_name    = #{menuName},
+            menu_action  = #{menuAction},
+            remark       = #{remark},
+            exit_menu    = #{exitMenu},
+            gmt_modified = now(),
+            version      = version + 1
+        where menu_no = #{menuNO}
+          and version = #{version}
+    </update>
+    <!--菜单列表-->
+    <select id="listMenus" parameterType="java.lang.String" resultType="java.lang.String">
+        select
+        menu_name
+        from t_menu
+        where is_deleted = 0
+        order by create_time desc
+    </select>
+    <!--MQ
+    <insert id="insertToActiveMq" parameterType="com.example.demo.MQ.QueueEntity">
+        insert into t_mq(
+            MQ_code,
+            MQ_content,
+            MQ_time
+        )
+        values (
+            #{MQcode},
+            #{content},
+            now()
+        );
+    </insert>-->
+</mapper>

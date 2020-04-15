@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.driverInformation.Dao.driverDao">
+
+    <!--按实体统计司机编号数量-->
+    <select id="countdriverEntity" parameterType="com.example.demo.driverInformation.Entity.driverEntity" resultType="int">
+        select count(driver_no)
+        from t_driver
+        where is_deleted = 0
+        and driver_no = #{driverNo}
+    </select>
+
+    <!--统计用户账号数量-->
+    <select id="countUserAcct" parameterType="com.example.demo.driverInformation.Entity.driverEntity" resultType="int">
+        select count(user_acct)
+        from t_user_management
+        where is_deleted = 0
+        and user_acct = #{driverAcct}
+    </select>
+    <select id="countdriverAcct" parameterType="com.example.demo.driverInformation.Entity.driverEntity" resultType="int">
+        select count(driver_Acct)
+        from t_driver
+        where is_deleted = 0
+        and driver_Acct = #{driverAcct}
+    </select>
+
+    <!--统计手机号数量-->
+    <select id="countPhone" parameterType="com.example.demo.driverInformation.Entity.driverEntity" resultType="int">
+        select count(phone)
+        from t_user_management
+        where is_deleted = 0
+        and phone = #{driverPhone}
+    </select>
+    <select id="countdriverPhone" parameterType="com.example.demo.driverInformation.Entity.driverEntity" resultType="int">
+        select count(driver_phone)
+        from t_driver
+        where is_deleted = 0
+        and driver_phone = #{driverPhone}
+    </select>
+
+    <!--统计身份证-->
+    <select id="countIdentify" parameterType="com.example.demo.driverInformation.Entity.driverEntity" resultType="int">
+        select count(id_card)
+        from t_user_management
+        where is_deleted = 0
+        and id_card = #{idCard}
+    </select>
+    <select id="countdriverIdentify" parameterType="com.example.demo.driverInformation.Entity.driverEntity" resultType="int">
+        select count(id_card)
+        from t_driver
+        where is_deleted = 0
+        and id_card = #{idCard}
+    </select>
+
+
+    <!--新增司机-->
+    <insert id="addDrive" parameterType="com.example.demo.driverInformation.Entity.driverEntity">
+        insert into t_driver
+        (
+         driver_name,
+         driver_phone,
+         driver_Acct,
+         driver_Pwd,
+         id_card,
+         province,
+         city,
+         county,
+         is_deleted,
+         create_time,
+         create_by,
+         gmt_modified,
+         last_modified_by,
+         version)
+        values
+           (#{driverName},
+            #{driverPhone},
+            #{driverAcct},
+            #{driverPwd},
+            #{idCard},
+            #{province},
+            #{city},
+            #{county},
+            #{is_deleted},
+            now(),
+            #{create_by},
+            now(),
+            #{last_modified_by},
+            0)
+    </insert>
+
+    <!--删除司机信息-->
+    <update id="deleteDriver" parameterType="java.lang.Integer">
+        update t_driver
+        set
+        is_deleted = 1,
+        gmt_modified = now(),
+        last_modified_by   = #{driverID},
+        version = version + 1
+        where driver_no in
+        <foreach item="item" index="index" collection="listCode2" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!--司机信息详情查询-->
+    <select id="queryDriverDetail" parameterType="java.lang.Integer" resultType="com.example.demo.driverInformation.Entity.driverEntity">
+         select
+         driver_name driverName,
+         driver_phone driverPhone,
+         driver_Acct driverAcct,
+         driver_Pwd driverPwd,
+         id_card idCard,
+         province province,
+         city city,
+         county county
+        from t_driver
+        where driver_no = #{driverNo}
+        and is_deleted = 0
+    </select>
+
+    <!--修改司机信息查询-->
+    <update id="updateDriver" parameterType="com.example.demo.driverInformation.Entity.driverEntity">
+        update t_driver
+        set
+            driver_name    = #{driverName},
+            driver_phone    = #{driverPhone},
+            id_card      = #{idCard},
+            driver_Acct          = #{driverAcct},
+            driver_Pwd        = #{driverPhone},
+            province        = #{province},
+            city           = #{city},
+            county         = #{county},
+            gmt_modified = now(),
+            last_modified_by   = #{last_modified_by},
+            version      = version + 1
+        where driver_no = #{driverNo}
+          and version = #{version}
+    </update>
+
+    <!--   司机列表信息查询-->
+    <select id="queryDriversList" parameterType="com.example.demo.driverInformation.Entity.driverEntity" resultType="com.example.demo.driverInformation.Entity.driverEntity">
+        select
+        driver_no driverNo,
+        driver_name driverName,
+        driver_phone driverPhone,
+        id_card idCard,
+        driver_Acct driverAcct
+        from t_driver
+        where is_deleted = 0
+        <if test="driverNo!= null and driverNo != ''">
+            and driver_no like concat('%', #{driverNo}, '%')
+        </if>
+        <if test="driverName != null and driverName != ''">
+            and driver_name like concat('%', #{driverName}, '%')
+        </if>
+        <if test="province != null and province != ''">
+            and province like concat('%', #{province}, '%')
+        </if>
+        <if test="city != null and city != ''">
+            and city like concat('%', #{city}, '%')
+        </if>
+        <if test="county != null and county != ''">
+            and county like concat('%', #{county}, '%')
+        </if>
+    </select>
+
+</mapper>

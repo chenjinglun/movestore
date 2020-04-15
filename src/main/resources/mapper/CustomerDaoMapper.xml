@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.Customerquery.Dao.CustomerDao">
+    <!--客户列表-->
+    <select id="queryCustomer" parameterType="com.example.demo.user.entity.UserInfo" resultType="com.example.demo.user.entity.UserInfo">
+        select
+        t_user_management.user_code,
+        user_name,
+        user_acct,
+        user_pwd,
+        id_card,
+        sex,
+        phone,
+        email,
+        role
+        from t_customer,t_user_management
+        where t_customer.is_deleted = 0 and t_user_management.is_deleted = 0
+        and t_customer.user_code = t_user_management.user_code and role="3"
+        <if test="userAcct != null and userAcct != ''">
+            and user_acct like concat('%', #{userAcct}, '%')
+        </if>
+        <if test="userName != null and userName != ''">
+            and user_name like concat('%', #{userName}, '%')
+        </if>
+    </select>
+</mapper>

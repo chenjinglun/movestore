@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.goods.dao.GoodsDao">
+
+    <!--统计商品名称数量-->
+    <select id="countgoodsName" parameterType="com.example.demo.goods.entity.GoodsEntity" resultType="int">
+        select count(sku_name)
+        from t_sku_information
+        where is_deleted = 0
+        and sku_name = #{goodsName}
+    </select>
+
+    <insert id="addGoods" parameterType="com.example.demo.goods.entity.GoodsEntity">
+    insert into t_sku_information
+    (
+    sku_no,
+    sku_name,
+    book_no,
+    one_cate_code,
+    two_cate_code,
+    sku_detail,
+    user_code,
+    stock,
+    cost_price,
+    selling_price,
+    detail,
+    image_code,
+    author_name,
+    sku_press,
+    is_deleted,
+    create_time,
+    create_by,
+    gmt_modified,
+    last_modified_by,
+    version)
+    values
+    (
+    #{goodsCode},
+    #{goodsName},
+    #{bookNo},
+    #{onecatecode},
+    #{twocatecode},
+    #{skudetail},
+    #{userCode},
+    #{stock},
+    #{costPrice},
+    #{sellingPrice},
+    #{detail},
+    #{imageCode},
+    #{AuthorName},
+    #{skuPress},
+    #{is_deleted},
+    now(),
+    #{create_by},
+    now(),
+    #{last_modified_by},
+    0)
+    </insert>
+
+    <!--删除商品信息-->
+    <update id="deleteGoods" parameterType="java.lang.String">
+        update t_sku_information
+        set
+        is_deleted = 1,
+        gmt_modified = now(),
+        last_modified_by   = #{goodsId},
+        version = version + 1
+        where sku_no in
+        <foreach item="item" index="index" collection="listCode" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!--统计商品编号-->
+    <select id="countgoods" parameterType="java.lang.String" resultType="int">
+        select count(sku_no)
+        from t_sku_information
+        where is_deleted = 0
+        and sku_no = #{goodsCode}
+    </select>
+
+    <!--商品信息查询-->
+    <select id="queryGoodDetail" parameterType="java.lang.String" resultType="com.example.demo.goods.entity.GoodsEntity">
+        select
+         sku_name goodsName,
+         book_no bookNo,
+         one_cate_code onecatecode,
+         two_cate_code twocatecode,
+         t_user_management.user_name userName,
+         stock stock,
+         cost_price costPrice,
+         selling_price sellingPrice,
+         detail detail,
+         image_code imageCode,
+         author_name AuthorName,
+         sku_press skuPress
+        from t_sku_information,t_user_management
+        where sku_no = #{goodsCode} and t_sku_information.user_code = t_user_management.user_code
+        and t_user_management.is_deleted = 0 and t_sku_information.is_deleted =0
+    </select>
+
+    <!--按实体统计商品名称-->
+    <select id="countGoodsEntity" parameterType="com.example.demo.goods.entity.GoodsEntity" resultType="int">
+        select count(sku_name)
+        from t_sku_information
+        where is_deleted = 0
+        and sku_name = #{goodsName}
+    </select>
+
+    <!--修改商品信息-->
+    <update id="updateGoods" parameterType="com.example.demo.goods.entity.GoodsEntity">
+        update t_sku_information
+        set
+            sku_name              = #{goodsName},
+            book_no               = #{bookNo},
+            one_cate_code         = #{onecatecode},
+            two_cate_code         = #{twocatecode},
+            sku_detail            = #{skudetail},
+            cost_price            = #{costPrice},
+            selling_price         = #{sellingPrice},
+            detail                = #{detail},
+            image_code            = #{imageCode},
+            author_name           = #{AuthorName},
+            sku_press             = #{skuPress},
+            sku_no                = #{goodsCode},
+            gmt_modified          = now(),
+            version               = version + 1
+        where sku_no = #{goodsCode}
+          and version = #{version}
+    </update>
+    <!--修改门店信息的商家名字-->
+    <update id="updateGoodsauthorname" parameterType="com.example.demo.goods.entity.GoodsEntity">
+        update t_user_management
+        set
+            user_name                 = #{userName}
+        where
+            t_user_management.user_code = (select user_code from t_sku_information where user_code = #{userCode})
+
+    </update>
+
+    <!--修改商品状态信息-->
+    <update id="upperOrLowerShelf" parameterType="java.lang.String">
+        update t_sku_information
+        set
+        gmt_modified = now(),
+        sku_state   = #{skuState},
+        version = version + 1
+        where sku_no in
+        <foreach item="item" index="index" collection="listCode" open="(" separator="," close=")">
+            #{item}
+        </foreach> and is_deleted=0
+    </update>
+
+    <!--商品列表-->
+
+    <select id="listGoods" parameterType="com.example.demo.goods.entity.GoodsEntity" resultType="com.example.demo.goods.entity.GoodsEntity">
+
+        select
+        a.sku_no goodsCode,
+        a.sku_name goodsName,
+        a.book_no bookNo,
+        a.user_code userCode,
+        d.user_name userName,
+        b.cate_name onecatecode,
+        c.cate_name twocatecode,
+        a.cost_price costPrice,
+        a.selling_price sellingPrice,
+        a.sale_cnt saleCnt,
+        a.sku_detail skudetail,
+        a.sku_press skuPress,
+        a.author_name AuthorName,
+        a.detail detail,
+        a.stock stock,
+        a.sku_state skuState,
+        a.sale_time saleTime
+        from t_sku_information a
+        LEFT JOIN t_user_management d
+        on a.user_code = d.user_code
+        left join t_sku_classified b
+        on a.one_cate_code = b.cate_code
+        left join t_sku_classified c
+        on c.cate_parent = b.cate_code
+        where a.is_deleted = 0
+        <if test="goodsName != null and goodsName != ''">
+            and a.sku_name like concat('%', #{goodsName}, '%')
+        </if>
+        <if test="skudetail != null and skudetail != ''">
+            and a.sku_detail like concat('%', #{skudetail}, '%')
+        </if>
+        <if test="AuthorName != null and AuthorName != ''">
+            and a.author_name like concat('%',#{AuthorName},'%')
+        </if>
+        <if test="skuPress != null and skuPress != ''">
+            and a.sku_press like concat ('%',#{skuPress},'%')
+        </if>
+        <if test="skuState != null and skuState != ''">
+            and a.sku_state =#{skuState}
+        </if>
+--         group by a.sku_no
+    </select>
+
+
+</mapper>

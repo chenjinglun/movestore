@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.StoreInfomation.Dao.StoreInDao">
+
+    <insert id="addStore" parameterType="com.example.demo.StoreInfomation.Entity.StoreInEntity">
+        insert into t_store_information
+        (
+         store_no,
+         store_name,
+         store_address,
+         store_phone,
+         user_code,
+         store_license,
+         store_invitation,
+         province,
+         city,
+         county,
+         is_deleted,
+         create_time,
+         create_by,
+         gmt_modified,
+         last_modified_by,
+         version)
+        values
+           (
+            #{storeNO},
+            #{storeName},
+            #{storeAddress},
+            #{storePhone},
+            #{userCode},
+            #{storeLicense},
+            #{storeInvitation},
+            #{province},
+            #{city},
+            #{county},
+            #{is_deleted},
+            now(),
+            #{create_by},
+            now(),
+            #{last_modified_by},
+            0)
+    </insert>
+
+    <!--删除门店信息-->
+    <update id="deleteStore" parameterType="java.lang.Integer">
+        update t_store_information
+        set
+        is_deleted = 1,
+        gmt_modified = now(),
+        last_modified_by   = #{StoreID},
+        version = version + 1
+        where store_no in
+        <foreach item="item" index="index" collection="listCode2" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!--统计门店编号-->
+    <select id="countStore" parameterType="java.lang.Integer" resultType="int">
+        select count(store_no)
+        from t_store_information
+        where is_deleted = 0
+        and store_no = #{storeNO}
+    </select>
+
+    <!--门店信息查询-->
+    <select id="queryStoreDetail" parameterType="java.lang.Integer" resultType="com.example.demo.StoreInfomation.Entity.StoreInEntity">
+        select
+        store_no storeNO,
+         store_name storeName,
+         store_phone storePhone,
+         user_code userCode,
+         store_license storeLicense,
+         store_address storeAddress,
+         store_invitation storeInvitation,
+         province province,
+         city city,
+         county county,
+         is_deleted,
+         create_time,
+         create_by,
+         gmt_modified,
+         last_modified_by,
+         version
+        from t_store_information
+        where store_no = #{storeNO}
+        and is_deleted = 0
+    </select>
+
+    <!--按实体统计门店数量-->
+    <select id="countStoreEntity" parameterType="com.example.demo.StoreInfomation.Entity.StoreInEntity" resultType="int">
+        select count(store_name)
+        from t_store_information
+        where is_deleted = 0
+        and store_name = #{storeName}
+    </select>
+
+    <!--修改门店信息-->
+    <update id="updatesStore" parameterType="com.example.demo.StoreInfomation.Entity.StoreInEntity">
+        update t_store_information
+        set
+            store_name        = #{storeName},
+            store_phone       = #{storePhone},
+            user_code         = #{userCode},
+            store_license     =#{storeLicense},
+            store_address     =#{storeAddress},
+            store_invitation  =#{storeInvitation},
+            province          =#{province},
+            city              =#{city},
+            county            =#{county},
+            gmt_modified = now(),
+            version      = version + 1
+        where store_no = #{storeNO}
+          and version = #{version}
+    </update>
+
+<!--    门店信息列表-->
+    <select id="queryStoreList" parameterType="com.example.demo.StoreInfomation.Entity.StoreInEntity" resultType="com.example.demo.StoreInfomation.Entity.StoreInEntity">
+        select
+        store_no storeNO,
+        store_name storeName,
+        store_invitation storeInvitation,
+        store_phone storePhone,
+        store_address storeAddress,
+        t_user_management.user_name storeUserName,
+        t_user_management.user_acct storeAcct
+        from t_store_information,t_user_management
+        where t_store_information.is_deleted = 0 and t_user_management.is_deleted = 0
+        and t_store_information.user_code = t_user_management.user_code
+        <if test="storeNO!= null and storeNO != ''">
+            and store_no like concat('%', #{storeNO}, '%')
+        </if>
+        <if test="storeName != null and storeName != ''">
+            and store_name like concat('%', #{storeName}, '%')
+        </if>
+        <if test="storeUserName != null and storeUserName != ''">
+            and t_user_management.user_name like concat('%', #{storeUserName}, '%')
+        </if>
+        <if test="province != null and province != ''">
+            and province like concat('%', #{province}, '%')
+        </if>
+        <if test="city != null and city != ''">
+            and city like concat('%', #{city}, '%')
+        </if>
+        <if test="county != null and county != ''">
+            and county like concat('%', #{county}, '%')
+        </if>
+    </select>
+
+
+
+</mapper>

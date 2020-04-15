@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.user.dao.DemoDao">
+
+    <!--统计用户账号数量-->
+    <select id="countUserAcct" parameterType="com.example.demo.user.entity.UserInfo" resultType="int">
+        select count(user_acct)
+        from t_user_management
+        where is_deleted = 0
+        and user_acct = #{user_acct}
+    </select>
+
+    <!--新增用户-->
+    <insert id="saveUser" parameterType="com.example.demo.user.entity.UserInfo">
+        insert into t_user_management
+        (user_code,
+         user_name,
+         user_acct,
+         user_pwd,
+         id_card,
+         sex,
+         role,
+         phone,
+         email,
+         is_deleted,
+         create_time,
+         create_by,
+         gmt_modified,
+         last_modified_by,
+         version)
+        values
+           (#{user_code},
+            #{user_name},
+            #{user_acct},
+            #{user_pwd},
+            #{id_card},
+            #{sex},
+            #{role},
+            #{phone},
+            #{email},
+            #{is_deleted},
+            now(),
+            #{create_by},
+            now(),
+            #{last_modified_by},
+            0)
+    </insert>
+
+    <!--用户列表-->
+    <select id="listUsersByPage" parameterType="com.example.demo.user.entity.UserInfo" resultType="com.example.demo.user.entity.UserInfo">
+        select
+        user_code,
+        user_name,
+        user_acct,
+        user_pwd,
+        id_card,
+        sex,
+        role,
+        phone,
+        email,
+        is_deleted,
+        create_time,
+        create_by,
+        gmt_modified,
+        last_modified_by,
+        version
+        from t_user_management
+        where is_deleted = 0
+        <if test="user_acct != null and user_acct != ''">
+            and user_acct like concat('%', #{user_acct}, '%')
+        </if>
+        <if test="user_name != null and user_name != ''">
+            and user_name like concat('%', #{user_name}, '%')
+        </if>
+        order by create_time desc
+    </select>
+
+    <!--删除用户-->
+    <update id="deleteUser" parameterType="java.lang.String">
+        update t_user_management
+        set
+        is_deleted = 1,
+        gmt_modified = now(),
+        last_modified_by   = #{userId},
+        version = version + 1
+        where user_code in
+        <foreach item="item" index="index" collection="listCode" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!--修改用户信息-->
+    <update id="updateUser" parameterType="com.example.demo.user.entity.UserInfo">
+        update t_user_management
+        set
+            user_name    = #{user_name},
+            user_acct    = #{user_acct},
+            id_card      = #{id_card},
+            sex          = #{sex},
+            phone        = #{phone},
+            email        = #{email},
+            gmt_modified = now(),
+            last_modified_by   = #{last_modified_by},
+            version      = version + 1
+        where user_code = #{user_code}
+          and version = #{version}
+    </update>
+
+    <!--获取用户信息-->
+    <select id="getUserByUserCode" parameterType="java.lang.String" resultType="com.example.demo.user.entity.UserInfo">
+        select
+            user_code,
+            user_name,
+            user_acct,
+            user_pwd,
+            id_card,
+            sex,
+            phone,
+            email,
+            version
+        from t_user_management
+        where user_code = #{user_code}
+        and is_deleted = 0
+    </select>
+</mapper>

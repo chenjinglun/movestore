@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.hotGoods.Dao.hotGoodsDao">
+
+    <!--统计热门商品编号-->
+    <select id="counthotgoodsCode" parameterType="com.example.demo.hotGoods.Entity.hotGoodsEntity" resultType="int">
+        select count(sku_no)
+        from t_popular_products
+        where is_deleted = 0
+        and sku_no = #{skuNo}
+    </select>
+
+    <!--统计热门商品序号-->
+    <select id="countSort" parameterType="com.example.demo.hotGoods.Entity.hotGoodsEntity" resultType="int">
+        select count(pop_sort)
+        from t_popular_products
+        where is_deleted = 0
+        and pop_sort = #{popSort}
+    </select>
+
+    <insert id="addHotGood" parameterType="com.example.demo.hotGoods.Entity.hotGoodsEntity">
+    insert into t_popular_products
+    (
+    product_pop,
+    sku_no,
+    pop_sort,
+    is_deleted,
+    create_time,
+    create_by,
+    gmt_modified,
+    last_modified_by,
+    version)
+    values
+    (
+    #{productPop},
+    #{skuNo},
+    #{popSort},
+    #{is_deleted},
+    now(),
+    #{create_by},
+    now(),
+    #{last_modified_by},
+    0)
+    </insert>
+
+    <!--删除热门商品信息-->
+    <update id="deleteHotGood" parameterType="java.lang.String">
+        update t_popular_products
+        set
+        is_deleted = 1,
+        gmt_modified = now(),
+        last_modified_by   = #{hootGoodsId},
+        version = version + 1
+        where product_pop in
+        <foreach item="item" index="index" collection="listCode" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!--修改热门商品信息-->
+    <update id="updateHotGood" parameterType="com.example.demo.hotGoods.Entity.hotGoodsEntity">
+        update t_popular_products
+        set
+            sku_no              = #{skuNo},
+            pop_sort         = #{popSort},
+            gmt_modified          = now(),
+            version               = version + 1
+        where product_pop = #{productPop}
+          and version = #{version}
+    </update>
+
+    <!--热门商品详情查询-->
+    <select id="queryHotGoodDetail" parameterType="java.lang.String" resultType="com.example.demo.hotGoods.Entity.hotGoodsEntity">
+        select
+         pop_sort popSort,
+         a.sku_no skuNo,
+         b.sku_name   skuName,
+         product_pop productPop
+        from t_popular_products a,t_sku_information b
+        where product_pop = #{productPop} and a.sku_no = b.sku_no
+        and a.is_deleted = 0 and b.is_deleted =0
+    </select>
+
+    <!--热门商品列表-->
+
+    <select id="queryHotGoodsList" parameterType="com.example.demo.hotGoods.Entity.hotGoodslistEntity" resultType="com.example.demo.hotGoods.Entity.hotGoodslistEntity">
+
+        select
+        a.pop_sort popSort,
+        a.product_pop productPop,
+        a.sku_no skuNo,
+        b.sku_name skuName,
+        b.selling_price sellingPrice,
+        b.sku_detail skudetail
+        from t_popular_products a,t_sku_information b
+        where a.is_deleted = 0 and a.sku_no = b.sku_no
+        <if test="skuNo != null and skuNo != ''">
+            and  a.sku_no = #{skuNo}
+        </if>
+        <if test="skuName != null and skuName != ''">
+            and b.sku_name like concat('%', #{skuName}, '%')
+        </if>
+        ORDER BY
+        a.product_pop
+    </select>
+
+    <!--查询展示数量-->
+    <select id="showHotGoodsNum" parameterType="com.example.demo.hotGoods.Entity.hotGoodsShowNum" resultType="com.example.demo.hotGoods.Entity.hotGoodsShowNum">
+        select
+        show_num showNum
+        from
+        t_show_num
+    </select>
+
+    <!--修改热门商品展示数量-->
+    <update id="updateHotGoodsNum" parameterType="com.example.demo.hotGoods.Entity.hotGoodsShowNum" >
+        update t_show_num
+        set
+            show_num              = #{hotGoodsNum},
+            gmt_modified          = now(),
+            version               = version + 1
+        where version = #{version}
+    </update>
+
+</mapper>

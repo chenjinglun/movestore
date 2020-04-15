@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.Rota.Dao.RotaDao">
+    <!--新增轮播图-->
+
+    <insert id="addRotaChart" parameterType="com.example.demo.Rota.Entity.RotaEntity">
+
+        insert into t_carousel
+        (image_url,
+         banner_code,
+         sku_no,
+         is_deleted,
+         create_by,
+         create_time,
+         ins,
+         start_time,
+         end_time,
+         image_state,
+         version
+         )
+        values
+           (
+           #{imageUrl},
+           #{bannerCode},
+           #{skuNo},
+           0,
+           #{create_by},
+           now(),
+           #{in},
+           #{startTime},
+           #{endTime},
+           0,
+           0
+            )
+
+    </insert>
+
+    <!--删除轮播图-->
+
+    <update id="deleteRotaChart" parameterType="java.lang.String">
+
+        update t_carousel
+        set
+        is_deleted = 1,
+        gmt_modified = now(),
+        last_modified_by   = #{RotaId},
+        version = version + 1
+        where banner_code in
+        <foreach item="item" index="index" collection="listCode" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+
+    </update>
+
+    <!--查询轮播图分页-->
+
+    <select id="queryRotaChartList" parameterType="com.example.demo.Rota.Entity.RotaEntity" resultType="com.example.demo.Rota.Entity.RotaEntity">
+
+        select
+        a.image_url imageUrl,
+        a.ins ins,
+        a.image_state imageState,
+        a.start_time startTime,
+        a.end_time endTime
+        from t_carousel a
+        where is_deleted = 0
+        <if test="imageState != null and imageState != ''">
+            and a.image_state like concat('%', #{imageState}, '%')
+        </if>
+        order by ins desc
+
+    </select>
+
+    <!--修改轮播图状态信息-->
+    <update id="updateRotaChartState" parameterType="java.lang.String">
+        update t_carousel
+        set
+        gmt_modified = now(),
+        image_state   = #{imageState},
+        version = version + 1
+        where banner_code in
+        <foreach item="item" index="index" collection="listCode" open="(" separator="," close=")">
+            #{item}
+        </foreach> and is_deleted=0
+    </update>
+
+    <!--    门店信息列表-->
+    <select id="goods" parameterType="com.example.demo.Rota.Entity.RotaEntity" resultType="com.example.demo.goods.entity.GoodsEntity">
+        select
+        a.sku_no goodsCode,
+        b.sku_name goodsName,
+        b.sku_state skuState,
+        c.cate_name onecatecode,
+        d.cate_name twocatecode
+        from t_carousel a
+        LEFT JOIN t_sku_information b
+        on a.sku_no = b.sku_no
+        LEFT JOIN t_sku_classified c
+        on b.one_cate_code = c.cate_code
+        LEFT JOIN t_sku_classified d
+        on b.two_cate_code = d.cate_code
+        where a.is_deleted = 0
+        <if test="skuNo!= null and skuNo != ''">
+            and t_carousel.sku_no like concat('%', #{skuNo}, '%')
+        </if>
+        <if test="skuName != null and skuName != ''">
+            and t_sku_information.sku_name like concat('%', #{skuName}, '%')
+        </if>
+    </select>
+
+
+</mapper>
