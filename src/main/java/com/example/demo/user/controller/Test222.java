@@ -1,5 +1,5 @@
 package com.example.demo.user.controller;
 
-public class TestController {
-
+public class Test222 {
+    private int ss;
 }
