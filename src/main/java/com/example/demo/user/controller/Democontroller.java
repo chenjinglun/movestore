@@ -15,9 +15,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-
 @RequestMapping("/user")
-
 public class Democontroller {
     private static final Logger logger = LoggerFactory.getLogger(Democontroller.class);
 
@@ -69,7 +67,7 @@ public class Democontroller {
     }
     /**
      * 删除用户
-     * @param listCode
+     * @param httpServletRequest
      * @return Response
      * @author scout
      * @Date 2020-03-25
